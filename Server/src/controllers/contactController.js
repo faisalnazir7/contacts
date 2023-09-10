@@ -44,7 +44,26 @@ const getAllContacts = asyncHandler(async (req, res) => {
     res.status(200).json({ contacts });
   });
 
+  // Function to retrieve a specific contact by ID
+const getContactById = asyncHandler(async (req, res) => {
+    const contactId = req.params.id;
+  
+    // Find the contact by ID for the authenticated user
+    const contact = await Contact.findOne({
+      _id: contactId,
+      createdBy: req.user._id,
+    });
+  
+    if (!contact) {
+      res.status(404);
+      throw new Error("Contact not found");
+    }
+  
+    res.status(200).json({ contact });
+  });
+
   module.exports = {
     createContact,
-    getAllContacts
+    getAllContacts,
+    getContactById
   };
