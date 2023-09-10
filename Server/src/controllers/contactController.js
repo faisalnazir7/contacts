@@ -89,9 +89,31 @@ const updateContactById = asyncHandler(async (req, res) => {
     res.status(200).json({ message: "Contact updated successfully", contact: updatedContact });
   });
 
+  // Function to delete a contact by ID
+const deleteContactById = asyncHandler(async (req, res) => {
+    const contactId = req.params.id;
+  
+    // Find the contact by ID for the authenticated user
+    const contact = await Contact.findOne({
+      _id: contactId,
+      createdBy: req.user._id,
+    });
+  
+    if (!contact) {
+      res.status(404);
+      throw new Error("Contact not found");
+    }
+  
+    // Remove the contact from the database
+    await Contact.deleteOne({ _id: contactId });
+  
+    res.status(204).json({ message: "Contact deleted successfully" });
+  });
+
   module.exports = {
     createContact,
     getAllContacts,
     getContactById,
-    updateContactById
+    updateContactById,
+    deleteContactById
   };
