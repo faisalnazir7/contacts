@@ -36,6 +36,15 @@ const createContact = asyncHandler(async (req, res) => {
     }
   });
 
+  // Function to retrieve all contacts
+const getAllContacts = asyncHandler(async (req, res) => {
+    // Retrieve all contacts from the database
+    const contacts = await Contact.find({ createdBy: req.user._id });
+  
+    res.status(200).json({ contacts });
+  });
+
   module.exports = {
-    createContact
+    createContact,
+    getAllContacts
   };
