@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const userRoute = require("../src/routes/userRoute");
+const errorHandler = require("./middleware/errorMiddleware");
 const cors = require("cors");
 
 const app = express();
@@ -14,6 +15,8 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 
 // Routes Middleware
 app.use("/api/users", userRoute);
@@ -22,6 +25,9 @@ app.use("/api/users", userRoute);
 app.get("/", (req, res) => {
     res.send("Home Page");
   });
+
+// Error Middleware
+app.use(errorHandler)
 
 // Connection to MongoDB
 mongoose
