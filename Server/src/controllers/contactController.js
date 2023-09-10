@@ -62,8 +62,36 @@ const getContactById = asyncHandler(async (req, res) => {
     res.status(200).json({ contact });
   });
 
+  // Function to update an existing contact by ID
+const updateContactById = asyncHandler(async (req, res) => {
+    const contactId = req.params.id;
+    const { name, email, phone } = req.body;
+  
+    // Find the contact by ID for the authenticated user
+    const contact = await Contact.findOne({
+      _id: contactId,
+      createdBy: req.user._id,
+    });
+  
+    if (!contact) {
+      res.status(404);
+      throw new Error("Contact not found");
+    }
+  
+    // Update the contact fields
+    contact.name = name;
+    contact.email = email;
+    contact.phone = phone;
+  
+    // Save the updated contact
+    const updatedContact = await contact.save();
+  
+    res.status(200).json({ message: "Contact updated successfully", contact: updatedContact });
+  });
+
   module.exports = {
     createContact,
     getAllContacts,
-    getContactById
+    getContactById,
+    updateContactById
   };
