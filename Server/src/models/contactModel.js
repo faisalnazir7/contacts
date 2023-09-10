@@ -20,6 +20,11 @@ const contactSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // Reference to the User model to link contacts to users
+    required: true,
+  },
 });
 
 // Create the Contact model
