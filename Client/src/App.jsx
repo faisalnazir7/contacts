@@ -3,6 +3,7 @@ import Home from './Pages/Home/Home';
 import SignIn from './Pages/SignIn/SignIn';
 import SignUp from './Pages/SignUp/SignUp';
 import Contacts from './Pages/Contacts/Contacts';
+import Contact from './Pages/Contact/Contact';
 import Profile from './Pages/Profile/Profile';
 import AddContact from './Pages/AddContact/AddContact';
 
@@ -15,6 +16,7 @@ function App() {
         <Route exact path="/signin" element={<SignIn/>}></Route>
         <Route exact path="/signup" element={<SignUp/>}></Route>
         <Route exact path="/contacts" element={<Contacts/>}></Route>
+        <Route exact path="/contacts/:id" element={<Contact/>}></Route>
         <Route exact path="/profile" element={<Profile/>}></Route>
         <Route exact path="/addcontact" element={<AddContact/>}></Route>
       </Routes>

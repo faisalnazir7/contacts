@@ -3,11 +3,21 @@ import Navbar from '../../Components/Navbar/Navbar';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Contacts() {
+    const [search, setSearch] = useState("");
     const [contacts, setContacts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedContact, setSelectedContact] = useState({});
     const navigator = useNavigate();
+
+    const searchData = (search) => {
+        const filteredTournaments = contacts?.filter((contact) =>
+          contact?.name?.toLowerCase().includes(search?.toLowerCase()) ||
+          contact?.email?.toLowerCase().includes(search?.toLowerCase()) ||
+          contact?.phone?.toLowerCase().includes(search?.toLowerCase())
+        );
+        return filteredTournaments;
+      };
   
     // Function to open the edit modal
     const openEditModal = (contact) => {
@@ -91,7 +101,7 @@ async function updateContact(contactId) {
   }, []);
 
   return (
-    <>
+    <div>
       <Navbar />
       <section className="mx-auto w-full max-w-7xl px-4 py-4">
         <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -101,6 +111,41 @@ async function updateContact(contactId) {
               This is a list of all contacts. You can add new contacts, edit, or delete existing ones.
             </p>
           </div>
+          <div className="flex ml-6 mr-10 md:w-[250px]">
+  <input
+    className="w-full h-10 rounded-full bg-gray-100 px-3 py-2 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-30 disabled:opacity-50"
+    type="text"
+    placeholder="Search"
+    onChange={(e) => {
+      setSearch(e.target.value);
+    }}
+  />
+  {search && (
+    <div className="fixed w-[250px] mt-2 z-30 border-solid border-2 rounded-xl shadow-md p-4 bg-white">
+      {searchData(search).length > 0 ? (
+        searchData(search)?.map((result) => (
+          <div
+            key={result._id}
+            onClick={() => {
+              navigator(`/contacts/${result._id}`);
+              setSearch("");
+            }}
+          >
+            <h1>
+              <b>{result?.name}</b>
+            </h1>
+            <p className="text-sm mt-1 mb-2">
+              {result?.phone}
+            </p>
+          </div>
+        ))
+      ) : (
+        <p className="font-semibold">No results found.</p>
+      )}
+    </div>
+  )}
+</div>
+
           <div>
             <Link to="/addcontact">
               <button
@@ -255,6 +300,6 @@ async function updateContact(contactId) {
           </div>
         </div>
       )}
-    </>
+      </div>
   );
 }
