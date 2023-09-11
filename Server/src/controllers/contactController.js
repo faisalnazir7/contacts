@@ -37,12 +37,22 @@ const createContact = asyncHandler(async (req, res) => {
   });
 
   // Function to retrieve all contacts
-const getAllContacts = asyncHandler(async (req, res) => {
-    // Retrieve all contacts from the database
-    const contacts = await Contact.find({ createdBy: req.user._id });
+  const getAllContacts = asyncHandler(async (req, res) => {
+    try {
+      // Retrieve all contacts from the database
+      const contacts = await Contact.find({ createdBy: req.user._id });
   
-    res.status(200).json({ contacts });
+      if (!contacts || contacts.length === 0) {
+        return res.status(404).json({ error: 'Contacts not found' });
+      }
+  
+      res.status(200).json({ contacts });
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   });
+  
 
   // Function to retrieve a specific contact by ID
 const getContactById = asyncHandler(async (req, res) => {
