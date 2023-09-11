@@ -1,9 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../Components/Navbar/Navbar';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Contacts() {
-  const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [contacts, setContacts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedContact, setSelectedContact] = useState({});
+    const navigator = useNavigate();
+  
+    // Function to open the edit modal
+    const openEditModal = (contact) => {
+      setSelectedContact(contact);
+      setShowEditModal(true);
+    };
+  
+    // Function to close the edit modal
+    const closeEditModal = () => {
+      setSelectedContact({});
+      setShowEditModal(false);
+    };
+
+// Function to update a contact
+async function updateContact(contactId) {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/contacts/${contactId}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(selectedContact), // Send the updated contact data
+      });
+
+      if (response.ok) {
+        // Contact updated successfully, close the modal and fetch updated data
+        closeEditModal();
+        getContacts();
+      } else {
+        console.error('Contact not updated');
+      }
+    } catch (error) {
+      console.error('Error during contact update:', error);
+    }
+  }
+
+  async function deleteContact(id) {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/contacts/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type':'application/json',
+        }
+      });
+      if (response.ok) {
+        navigator('/contacts');
+        // After successful deletion, fetch the updated contact list
+        getContacts();
+      } else {
+        console.error('Not deleted');
+      }
+    } catch (error) {
+      console.error('Error during delete:', error);
+    }
+  }
 
   const getContacts = async () => {
     try {
@@ -19,7 +80,6 @@ export default function Contacts() {
       const data = await response.json();
       setContacts(data.contacts);
       setLoading(false);
-    console.log(data)
     } catch (error) {
       console.error('Error fetching contacts:', error);
       setLoading(false);
@@ -42,12 +102,14 @@ export default function Contacts() {
             </p>
           </div>
           <div>
-            <button
-              type="button"
-              className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-            >
-              Add new Contact
-            </button>
+            <Link to="/addcontact">
+              <button
+                type="button"
+                className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+              >
+                Add new Contact
+              </button>
+            </Link>
           </div>
         </div>
         <div className="mt-6 flex flex-col">
@@ -84,72 +146,115 @@ export default function Contacts() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-  {contacts.length > 0 ? (
-    contacts.map((contact) => (
-      <tr key={contact._id} className="divide-x divide-gray-200">
-        <td className="whitespace-nowrap px-4 py-4">
-          <div className="flex items-center">
-            <div className="h-10 w-10 flex-shrink-0">
-              <img
-                className="h-10 w-10 rounded-full object-cover"
-                src="https://i.ibb.co/4pDNDk1/avatar.png"
-                alt=""
-              />
-            </div>
-            <div className="ml-4">
-              <div className="text-sm font-medium text-gray-900">
-                {contact.name}
-              </div>
-            </div>
-          </div>
-        </td>
-        <td className="whitespace-nowrap px-12 py-4">
-          <div className="text-sm text-gray-900">{contact.email}</div>
-        </td>
-        <td className="whitespace-nowrap px-4 py-4">
-        <div className="text-sm text-gray-900">{contact.phone}</div>
-        </td>
-        <td className="whitespace-nowrap px-4 py-4 text-right text-sm font-medium">
-          <a href="#" className="text-gray-500 hover:text-indigo-600">
-            Edit
-          </a>
-        </td>
-      </tr>
-    ))
-  ) : (
-    <tr>
-      <td colSpan="4" className="text-center">
-        No contacts found.
-      </td>
-    </tr>
-  )}
-</tbody>
-
+                      {contacts.length > 0 ? (
+                        contacts.map((contact) => (
+                          <tr key={contact._id} className="divide-x divide-gray-200">
+                            <td className="whitespace-nowrap px-4 py-4">
+                              <div className="flex items-center">
+                                <div className="h-10 w-10 flex-shrink-0">
+                                  <img
+                                    className="h-10 w-10 rounded-full object-cover"
+                                    src="https://i.ibb.co/4pDNDk1/avatar.png"
+                                    alt=""
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {contact.name}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="whitespace-nowrap px-12 py-4">
+                              <div className="text-sm text-gray-900">{contact.email}</div>
+                            </td>
+                            <td className="whitespace-nowrap px-4 py-4">
+                              <div className="text-sm text-gray-900">{contact.phone}</div>
+                            </td>
+                            <td className="whitespace-nowrap px-4 py-4">
+                              <button onClick={()=> {deleteContact(contact._id)}} className="text-sm text-gray-900">Delete</button>
+                            </td>
+                            <td className="whitespace-nowrap px-4 py-4">
+                              <button onClick={() => openEditModal(contact)} className="text-sm text-gray-900">Edit</button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="text-center">
+                            No contacts found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
                   </table>
                 )}
               </div>
             </div>
           </div>
         </div>
-        <div className="mt-4 w-full border-gray-300">
-          <div className="mt-2 flex items-center justify-end">
-            <div className="space-x-2">
-              <button
-                type="button"
-                className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-              >
-                &larr; Previous
-              </button>
-              <button
-                type="button"
-                className="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-              >
-                Next &rarr;
-              </button>
+      </section>
+    {/* Edit Contact Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="modal-container">
+            <div className="modal-content bg-white rounded-lg shadow-lg p-4">
+              <div className="modal-header">
+                <h3 className="text-lg font-semibold">Edit Contact</h3>
+                <button onClick={closeEditModal} className="modal-close">
+                  &#215;
+                </button>
+              </div>
+              <div className="modal-body">
+                {/* Edit contact form */}
+                <form onSubmit={() => updateContact(selectedContact._id)}>
+                  <div className="mb-4">
+                    <label htmlFor="name" className="block text-gray-700 font-semibold">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={selectedContact.name}
+                      onChange={(e) => setSelectedContact({ ...selectedContact, name: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="email" className="block text-gray-700 font-semibold">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={selectedContact.email}
+                      onChange={(e) => setSelectedContact({ ...selectedContact, email: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                    />
+                  </div>
+                  <div className="mb-4">
+                    <label htmlFor="phone" className="block text-gray-700 font-semibold">Phone</label>
+                    <input
+                      type="text"
+                      id="phone"
+                      name="phone"
+                      value={selectedContact.phone}
+                      onChange={(e) => setSelectedContact({ ...selectedContact, phone: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <button type="button" onClick={closeEditModal} className="px-4 py-2 mr-2 bg-gray-300 text-gray-700 rounded-lg focus:outline-none hover:bg-gray-400">
+                      Cancel
+                    </button>
+                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg focus:outline-none hover:bg-blue-600">
+                      Save
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      )}
     </>
   );
 }
