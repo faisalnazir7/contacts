@@ -1,87 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from '../../Components/Navbar/Navbar';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import Navbar from "../../Components/Navbar/Navbar";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Contacts() {
-    const [search, setSearch] = useState("");
-    const [contacts, setContacts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [selectedContact, setSelectedContact] = useState({});
-    const navigator = useNavigate();
+  const [search, setSearch] = useState("");
+  const [contacts, setContacts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedContact, setSelectedContact] = useState({});
+  const navigator = useNavigate();
 
-    const searchData = (search) => {
-        const filteredTournaments = contacts?.filter((contact) =>
-          contact?.name?.toLowerCase().includes(search?.toLowerCase()) ||
-          contact?.email?.toLowerCase().includes(search?.toLowerCase()) ||
-          contact?.phone?.toLowerCase().includes(search?.toLowerCase())
-        );
-        return filteredTournaments;
-      };
-  
-    // Function to open the edit modal
-    const openEditModal = (contact) => {
-      setSelectedContact(contact);
-      setShowEditModal(true);
-    };
-  
-    // Function to close the edit modal
-    const closeEditModal = () => {
-      setSelectedContact({});
-      setShowEditModal(false);
-    };
+  const searchData = (search) => {
+    const filteredContacts = contacts?.filter(
+      (contact) =>
+        contact?.name?.toLowerCase().includes(search?.toLowerCase()) ||
+        contact?.email?.toLowerCase().includes(search?.toLowerCase()) ||
+        contact?.phone?.toLowerCase().includes(search?.toLowerCase())
+    );
+    return filteredContacts;
+  };
 
-// Function to update a contact
-async function updateContact(contactId) {
+  // Function to open the edit modal
+  const openEditModal = (contact) => {
+    setSelectedContact(contact);
+    setShowEditModal(true);
+  };
+
+  // Function to close the edit modal
+  const closeEditModal = () => {
+    setSelectedContact({});
+    setShowEditModal(false);
+  };
+
+  // Function to update a contact
+  async function updateContact(contactId) {
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/contacts/${contactId}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(selectedContact), // Send the updated contact data
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/contacts/${contactId}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(selectedContact), // Send the updated contact data
+        }
+      );
 
       if (response.ok) {
         // Contact updated successfully, close the modal and fetch updated data
         closeEditModal();
         getContacts();
       } else {
-        console.error('Contact not updated');
+        console.error("Contact not updated");
       }
     } catch (error) {
-      console.error('Error during contact update:', error);
+      console.error("Error during contact update:", error);
     }
   }
 
   async function deleteContact(id) {
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/contacts/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type':'application/json',
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/contacts/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
       if (response.ok) {
-        navigator('/contacts');
+        navigator("/contacts");
         // After successful deletion, fetch the updated contact list
         getContacts();
       } else {
-        console.error('Not deleted');
+        console.error("Not deleted");
       }
     } catch (error) {
-      console.error('Error during delete:', error);
+      console.error("Error during delete:", error);
     }
   }
 
   const getContacts = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/contacts`, {
-        method: 'GET',
-        credentials: 'include', // Include cookies
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/contacts`,
+        {
+          method: "GET",
+          credentials: "include", // Include cookies
+        }
+      );
       if (!response.ok) {
         console.error(`Error fetching contacts: ${response.status}`);
         setLoading(false);
@@ -91,7 +101,7 @@ async function updateContact(contactId) {
       setContacts(data.contacts);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching contacts:', error);
+      console.error("Error fetching contacts:", error);
       setLoading(false);
     }
   };
@@ -108,43 +118,42 @@ async function updateContact(contactId) {
           <div>
             <h2 className="text-lg font-semibold">Contacts</h2>
             <p className="mt-1 text-sm text-gray-700">
-              This is a list of all contacts. You can add new contacts, edit, or delete existing ones.
+              This is a list of all contacts. You can add new contacts, edit, or
+              delete existing ones.
             </p>
           </div>
           <div className="flex ml-6 mr-10 md:w-[250px]">
-  <input
-    className="w-full h-10 rounded-full bg-gray-100 px-3 py-2 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-30 disabled:opacity-50"
-    type="text"
-    placeholder="Search"
-    onChange={(e) => {
-      setSearch(e.target.value);
-    }}
-  />
-  {search && (
-    <div className="fixed w-[250px] mt-2 z-30 border-solid border-2 rounded-xl shadow-md p-4 bg-white">
-      {searchData(search).length > 0 ? (
-        searchData(search)?.map((result) => (
-          <div
-            key={result._id}
-            onClick={() => {
-              navigator(`/contacts/${result._id}`);
-              setSearch("");
-            }}
-          >
-            <h1>
-              <b>{result?.name}</b>
-            </h1>
-            <p className="text-sm mt-1 mb-2">
-              {result?.phone}
-            </p>
+            <input
+              className="w-full h-10 rounded-full bg-gray-100 px-3 py-2 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black focus:ring-opacity-30 disabled:opacity-50"
+              type="text"
+              placeholder="Search"
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+            />
+            {search && (
+              <div className="fixed w-[250px] mt-12 z-30 border-solid border-2 rounded-xl shadow-md p-4 bg-white">
+                {searchData(search).length > 0 ? (
+                  searchData(search)?.map((result) => (
+                    <div
+                      key={result._id}
+                      onClick={() => {
+                        navigator(`/contacts/${result._id}`);
+                        setSearch("");
+                      }}
+                    >
+                      <h1>
+                        <b>{result?.name}</b>
+                      </h1>
+                      <p className="text-sm mt-1 mb-2">{result?.phone}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="font-semibold">No results found.</p>
+                )}
+              </div>
+            )}
           </div>
-        ))
-      ) : (
-        <p className="font-semibold">No results found.</p>
-      )}
-    </div>
-  )}
-</div>
 
           <div>
             <Link to="/addcontact">
@@ -191,9 +200,12 @@ async function updateContact(contactId) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
-                      {contacts.length > 0 ? (
-                        contacts.map((contact) => (
-                          <tr key={contact._id} className="divide-x divide-gray-200">
+                      {searchData(search)?.length > 0 ? (
+                        searchData(search)?.map((contact) => (
+                          <tr
+                            key={contact._id}
+                            className="divide-x divide-gray-200"
+                          >
                             <td className="whitespace-nowrap px-4 py-4">
                               <div className="flex items-center">
                                 <div className="h-10 w-10 flex-shrink-0">
@@ -211,17 +223,37 @@ async function updateContact(contactId) {
                               </div>
                             </td>
                             <td className="whitespace-nowrap px-12 py-4">
-                              <div className="text-sm text-gray-900">{contact.email}</div>
+                              <div className="text-sm text-gray-900">
+                                {contact.email}
+                              </div>
                             </td>
                             <td className="whitespace-nowrap px-4 py-4">
-                              <div className="text-sm text-gray-900">{contact.phone}</div>
+                              <div className="text-sm text-gray-900">
+                                {contact.phone}
+                              </div>
                             </td>
                             <td className="whitespace-nowrap px-4 py-4">
-                              <button onClick={()=> {deleteContact(contact._id)}} className="text-sm text-gray-900">Delete</button>
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-4">
-                              <button onClick={() => openEditModal(contact)} className="text-sm text-gray-900">Edit</button>
-                            </td>
+  <button
+    onClick={() => {
+      const shouldDelete = window.confirm("Are you sure you want to delete this contact?");
+      if (shouldDelete) {
+        deleteContact(contact._id);
+      }
+    }}
+    className="text-sm text-red-500 hover:text-red-700 focus:outline-none"
+  >
+    Delete
+  </button>
+</td>
+<td className="whitespace-nowrap px-4 py-4">
+  <button
+    onClick={() => openEditModal(contact)}
+    className="text-sm text-blue-500 hover:text-blue-700 focus:outline-none"
+  >
+    Edit
+  </button>
+</td>
+
                           </tr>
                         ))
                       ) : (
@@ -239,7 +271,7 @@ async function updateContact(contactId) {
           </div>
         </div>
       </section>
-    {/* Edit Contact Modal */}
+      {/* Edit Contact Modal */}
       {showEditModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="modal-container">
@@ -252,45 +284,87 @@ async function updateContact(contactId) {
               </div>
               <div className="modal-body">
                 {/* Edit contact form */}
-                <form onSubmit={() => updateContact(selectedContact._id)}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault(); // Prevent the default form submission behavior
+                    updateContact(selectedContact._id); // Call the updateContact function
+                  }}
+                >
                   <div className="mb-4">
-                    <label htmlFor="name" className="block text-gray-700 font-semibold">Name</label>
+                    <label
+                      htmlFor="name"
+                      className="block text-gray-700 font-semibold"
+                    >
+                      Name
+                    </label>
                     <input
                       type="text"
                       id="name"
                       name="name"
                       value={selectedContact.name}
-                      onChange={(e) => setSelectedContact({ ...selectedContact, name: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedContact({
+                          ...selectedContact,
+                          name: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                     />
                   </div>
                   <div className="mb-4">
-                    <label htmlFor="email" className="block text-gray-700 font-semibold">Email</label>
+                    <label
+                      htmlFor="email"
+                      className="block text-gray-700 font-semibold"
+                    >
+                      Email
+                    </label>
                     <input
                       type="email"
                       id="email"
                       name="email"
                       value={selectedContact.email}
-                      onChange={(e) => setSelectedContact({ ...selectedContact, email: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedContact({
+                          ...selectedContact,
+                          email: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                     />
                   </div>
                   <div className="mb-4">
-                    <label htmlFor="phone" className="block text-gray-700 font-semibold">Phone</label>
+                    <label
+                      htmlFor="phone"
+                      className="block text-gray-700 font-semibold"
+                    >
+                      Phone
+                    </label>
                     <input
                       type="text"
                       id="phone"
                       name="phone"
                       value={selectedContact.phone}
-                      onChange={(e) => setSelectedContact({ ...selectedContact, phone: e.target.value })}
+                      onChange={(e) =>
+                        setSelectedContact({
+                          ...selectedContact,
+                          phone: e.target.value,
+                        })
+                      }
                       className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                     />
                   </div>
                   <div className="flex justify-end">
-                    <button type="button" onClick={closeEditModal} className="px-4 py-2 mr-2 bg-gray-300 text-gray-700 rounded-lg focus:outline-none hover:bg-gray-400">
+                    <button
+                      type="button"
+                      onClick={closeEditModal}
+                      className="px-4 py-2 mr-2 bg-gray-300 text-gray-700 rounded-lg focus:outline-none hover:bg-gray-400"
+                    >
                       Cancel
                     </button>
-                    <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg focus:outline-none hover:bg-blue-600">
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg focus:outline-none hover:bg-blue-600"
+                    >
                       Save
                     </button>
                   </div>
@@ -300,6 +374,6 @@ async function updateContact(contactId) {
           </div>
         </div>
       )}
-      </div>
+    </div>
   );
 }
